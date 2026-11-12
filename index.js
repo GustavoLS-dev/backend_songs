@@ -58,6 +58,37 @@ app.delete("/apagar/:id", (request, response) => {
     })
 })
 
+app.get("/musica/:id", (request, response) => {
+    const { id } = request.params
+
+    const comandoSelect = "SELECT * FROM musicas_gustavolima WHERE id = ?"
+
+    sql.query(comandoSelect, [id], (error, data) => {
+        if (error) {
+            console.log(error)
+            return
+        }
+
+        response.json(data[0])
+    })
+})
+
+app.put("/editar/:id", (request, response) => {
+    const { id } = request.params
+    const { titulo, artista, genero, ano, duracao } = request.body
+
+    const comandoUpdate = "UPDATE musicas_gustavolima SET titulo = ?, artista = ?, genero = ?, ano = ?, duracao = ? WHERE id = ?"
+
+    sql.query(comandoUpdate, [titulo, artista, genero, ano, duracao, id], (error) => {
+        if (error) {
+            console.log(error)
+            return
+        }
+
+        response.json({ mensagem: "Música alterada com sucesso!" })
+    })
+})
+
 app.listen(3000, () => {
     console.log("Servidor online");
 });
