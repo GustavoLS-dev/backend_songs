@@ -89,6 +89,29 @@ app.put("/editar/:id", (request, response) => {
     })
 })
 
+/* Busca no iTunes pelo servidor: no iPhone, a API do iTunes redireciona
+   para o app Música em vez de responder, então o site pergunta por aqui */
+app.get("/itunes", async (request, response) => {
+    const termo = String(request.query.termo || "").trim().slice(0, 200)
+
+    if (!termo) {
+        response.json({ resultCount: 0, results: [] })
+        return
+    }
+
+    try {
+        const endereco = `https://itunes.apple.com/search?term=${encodeURIComponent(termo)}&media=music&entity=song&limit=15&country=BR`
+        const resposta = await fetch(endereco)
+        const dados = await resposta.json()
+
+        response.set("Cache-Control", "public, max-age=3600, s-maxage=86400")
+        response.json(dados)
+    } catch (error) {
+        console.log(error)
+        response.status(502).json({ resultCount: 0, results: [] })
+    }
+})
+
 app.listen(3000, () => {
     console.log("Servidor online");
 });
